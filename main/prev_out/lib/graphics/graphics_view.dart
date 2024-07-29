@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:prev_out/appbar.dart';
+class GraphicsApp extends StatelessWidget {
+  const GraphicsApp({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const CombinedWidget(),
+    );
+  }
+}
 
 class CombinedWidget extends StatefulWidget {
   const CombinedWidget({super.key});

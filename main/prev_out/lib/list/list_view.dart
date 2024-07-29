@@ -6,10 +6,8 @@ class ListApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Home',
-      home: const CombinedWidget(),
+    return Scaffold(
+      body: const CombinedWidget(),
     );
   }
 }
@@ -44,7 +42,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffFFE5E5), // Color de fondo de toda la página
+      backgroundColor: const Color(0xffFFE5E5), // Color de fondo de toda la página
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
@@ -71,10 +69,10 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ClipRRect( // Wrap with ClipRRect
+        child: ClipRRect(
           child: Container(
             decoration: BoxDecoration(
-              color: Color(0xffF5BCBA), // Color del card
+              color: const Color(0xffF5BCBA), // Color del card
               borderRadius: BorderRadius.circular(7.0), // Bordes redondeados
             ),
             child: Row(
