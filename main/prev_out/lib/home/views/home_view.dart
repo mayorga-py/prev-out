@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prev_out/appbar.dart';
 import 'package:prev_out/up_files/files_two.dart';
-import 'package:prev_out/graphics/graphics_page.dart';
+import 'package:prev_out/graphics/graphics_view.dart';
 import 'package:prev_out/guide/guide_view.dart';
 import 'package:prev_out/list/list_view.dart';
 

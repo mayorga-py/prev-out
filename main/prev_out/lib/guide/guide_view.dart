@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:prev_out/appbar.dart';
 
-void main() {
-  runApp(const GuideApp());
-}
-
 class GuideApp extends StatelessWidget {
   const GuideApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Home',
-      home: CombinedWidget(),
+    return const Scaffold(
+      body: CombinedWidget(),
     );
   }
 }

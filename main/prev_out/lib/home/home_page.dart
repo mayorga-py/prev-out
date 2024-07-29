@@ -7,10 +7,8 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Home',
-      home: const CombinedWidget(),
+    return Scaffold(
+      body: const CombinedWidget(),
     );
   }
 }
