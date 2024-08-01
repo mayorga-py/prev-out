@@ -59,7 +59,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             icon: const Icon(Icons.account_circle, color: Color.fromARGB(255, 80, 74, 74), size: 40,),
             onSelected: (String result) {
               if (result == 'logout') {
-                // Lógica de cierre de sesión aquí
+                print("hola");
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
