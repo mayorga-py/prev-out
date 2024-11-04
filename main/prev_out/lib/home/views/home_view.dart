@@ -16,7 +16,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Color(0xffFFE5E5),
+      backgroundColor: Color(0xffFFE5E5),
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
@@ -27,15 +27,12 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   }
 }
 
-
 Widget cuerpo(BuildContext context) {
   return Container(
     padding: const EdgeInsets.all(8.0),
     child: Center(
       child: Column(
-        children: [
-        dashboard(context)
-      ],
+        children: [dashboard(context)],
       ),
     ),
   );
@@ -60,8 +57,10 @@ Widget dashboard(BuildContext context) {
                   tboton: '',
                   imageUrl: null,
                   onPressed: () {
-                    Navigator.push(context,
-                    MaterialPageRoute(builder: (context)=> ListApp()),);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ListApp()),
+                    );
                   },
                   height: 360,
                 ),
@@ -76,17 +75,18 @@ Widget dashboard(BuildContext context) {
                       flex: 1,
                       fit: FlexFit.loose,
                       child: CardsD(
-                        tipocard: 'Archivos',
+                        tipocard: 'ARCHIVOS',
                         ecolor: Color(0xffFFC1CC),
                         tboton: '',
                         imageUrl: null,
                         onPressed: () {
-                            Navigator.push(
+                          Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const FilesUpload()),
+                            MaterialPageRoute(
+                                builder: (context) => const FilesUpload()),
                           );
                         },
-                        height:290,
+                        height: 290,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -99,9 +99,10 @@ Widget dashboard(BuildContext context) {
                         tboton: '',
                         imageUrl: null,
                         onPressed: () {
-                            Navigator.push(
+                          Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const GraphicsApp()),
+                            MaterialPageRoute(
+                                builder: (context) => const GraphicsApp()),
                           );
                         },
                         height: 290,
@@ -158,7 +159,6 @@ Widget dashboard(BuildContext context) {
     ),
   );
 }
-
 
 class CardsD extends StatelessWidget {
   final String tipocard;
@@ -246,5 +246,3 @@ class CardsD extends StatelessWidget {
     );
   }
 }
-
-
