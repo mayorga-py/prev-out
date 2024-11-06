@@ -4,16 +4,14 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Configurar la carpeta donde se subirán los archivos
 app.config['UPLOAD_FOLDER'] = "./Archivos PDF"
 
-# Verificar que la carpeta de subida exista, si no, crearla
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 @app.route("/")
 def upload_file():
-    files = os.listdir(app.config['UPLOAD_FOLDER'])  # Obtener la lista de archivos subidos
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
     return render_template('prueba.html', files=files)
 
 @app.route("/upload", methods=['POST'])
