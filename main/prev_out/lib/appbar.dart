@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -13,7 +14,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              // Verifica si la ruta actual es la home
+              if (ModalRoute.of(context)?.settings.name != '/home') {
+                Navigator.pop(context);
+              }
             },
             child: const Text(
               'PREV-OUT',
@@ -23,7 +27,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
           ),
-
           Container(
             width: 400, // Ajusta el ancho según tus necesidades
             height: 40,
@@ -40,13 +43,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             child: TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Inserta una matrícula para buscar',
                 hintStyle: TextStyle(color: Colors.grey),
                 prefixIcon: Icon(Icons.search, color: Colors.grey),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(vertical: 8),
-                
               ),
             ),
           ),
@@ -56,18 +58,34 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: PopupMenuButton<String>(
-            icon: const Icon(Icons.account_circle, color: Color.fromARGB(255, 80, 74, 74), size: 40,),
-            onSelected: (String result) {
+            icon: const Icon(
+              Icons.account_circle,
+              color: Color.fromARGB(255, 80, 74, 74),
+              size: 40,
+            ),
+            onSelected: (String result) async {
               if (result == 'logout') {
-                print("hola");
+                // Cerrar sesión de Firebase Auth
+                await FirebaseAuth.instance.signOut();
+
+                // Redirigir al login
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (Route<dynamic> route) => false, // Elimina todas las rutas anteriores
+                );
               }
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
                 value: 'logout',
-                child: Text('Cerrar sesión', style: TextStyle(
-                color: Color(0xffBA0C2F),
-              ),),
+                child: Text(
+                  'Cerrar sesión',
+                  style: TextStyle(
+                    color: Color(0xffBA0C2F),
+                  ),
+                ),
               ),
             ],
           ),

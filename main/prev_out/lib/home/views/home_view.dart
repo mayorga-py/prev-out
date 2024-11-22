@@ -76,7 +76,7 @@ Widget dashboard(BuildContext context) {
                       flex: 1,
                       fit: FlexFit.loose,
                       child: CardsD(
-                        tipocard: 'Archivos',
+                        tipocard: 'ARCHIVOS',
                         ecolor: Color(0xffFFC1CC),
                         tboton: '',
                         imageUrl: null,

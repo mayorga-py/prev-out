@@ -57,7 +57,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
       child: Center(
         child: Column(
           children: <Widget>[
-            checklist(),
+            //checklist(),
             lista(),
           ],
         ),

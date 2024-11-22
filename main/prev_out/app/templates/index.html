@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API de Predicción de Abandono Escolar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .api-info {
+            margin-bottom: 20px;
+        }
+        .api-info h2 {
+            margin-top: 0;
+        }
+        .example {
+            background-color: #e8e8e8;
+            padding: 10px;
+            border-left: 5px solid #00aaff;
+            font-family: monospace;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API de Predicción de Abandono Escolar</h1>
+        <div class="api-info">
+            <h2>Descripción</h2>
+            <p>Esta API permite predecir la probabilidad de que un estudiante abandone su carrera universitaria, basado en diversos factores psicométricos y demográficos.</p>
+        </div>
+        <div class="api-info">
+            <h2>Endpoints Disponibles</h2>
+            <ul>
+                <li><strong>POST /upload</strong> - Subir un archivo Excel con datos de estudiantes.</li>
+                <li><strong>GET /predict</strong> - Realizar una predicción basada en los datos subidos.</li>
+            </ul>
+        </div>
+        <div class="api-info">
+            <h2>Ejemplo de Uso</h2>
+            <p>Para subir un archivo Excel:</p>
+            <div class="example">
+                curl -X POST -F "file=@students_data.xlsx" http://localhost:8080/upload
+            </div>
+            <p>Para obtener una predicción:</p>
+            <div class="example">
+                curl -X GET http://localhost:8080/predict
+            </div>
+        </div>
+    </div>
+    <footer>
+        &copy; 2024 - API de Predicción de Abandono Escolar
+    </footer>
+</body>
+</html>

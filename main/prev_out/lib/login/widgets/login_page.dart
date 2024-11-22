@@ -1,8 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
+  LoginView({super.key});
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class LoginView extends StatelessWidget {
                     login(),
                     campoUsuario(),
                     campoContrasena(),
-                    botonOlvideContrasena(),
+                    botonOlvideContrasena(context), // Modificado
                     const SizedBox(height: 130),
                     Align(
                       alignment: Alignment.bottomRight,
@@ -36,7 +41,7 @@ class LoginView extends StatelessWidget {
                         padding: const EdgeInsets.all(20.0),
                         child: botonEntrar(context),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -70,10 +75,11 @@ class LoginView extends StatelessWidget {
   }
 
   Widget campoUsuario() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: TextField(
-        decoration: InputDecoration(
+        controller: _emailController,
+        decoration: const InputDecoration(
           hintText: "Usuario",
           fillColor: Colors.white,
           filled: true,
@@ -86,11 +92,12 @@ class LoginView extends StatelessWidget {
   }
 
   Widget campoContrasena() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: TextField(
+        controller: _passwordController,
         obscureText: true,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: "Contraseña",
           fillColor: Colors.white,
           filled: true,
@@ -102,10 +109,36 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget botonOlvideContrasena() {
+  Widget botonOlvideContrasena(BuildContext context) {
     return TextButton(
       style: const ButtonStyle(alignment: Alignment.bottomCenter),
-      onPressed: () {},
+      onPressed: () async {
+        String email = _emailController.text;
+
+        if (email.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Por favor ingresa tu correo electrónico"),
+            ),
+          );
+          return;
+        }
+
+        try {
+          await _auth.sendPasswordResetEmail(email: email);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Correo de restablecimiento de contraseña enviado"),
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error al enviar el correo: ${e.toString()}"),
+            ),
+          );
+        }
+      },
       child: const Text(
         'Olvidé mi contraseña',
         style: TextStyle(
@@ -120,19 +153,34 @@ class LoginView extends StatelessWidget {
   Widget botonEntrar(BuildContext context) {
     return TextButton(
       style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xff002D72)),
-        padding:
-            WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.all(15.0)),
+        backgroundColor: MaterialStateProperty.all<Color>(const Color(0xff002D72)),
+        padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.all(15.0)),
         alignment: Alignment.bottomRight,
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
           ),
         ),
       ),
-      onPressed: () {
-        Navigator.pushNamed(context, '/home');
+      onPressed: () async {
+        String email = _emailController.text;
+        String password = _passwordController.text;
+
+        try {
+          // ignore: unused_local_variable
+          UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+          Navigator.pushNamed(context, '/home');
+        } catch (e) {
+          // Manejar errores de inicio de sesión aquí
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error al iniciar sesión: ${e.toString()}"),
+            ),
+          );
+        }
       },
       child: const Text(
         'Continuar',
