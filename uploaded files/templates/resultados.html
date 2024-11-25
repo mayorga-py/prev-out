@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultados de Predicción</title>
+</head>
+<body>
+    <h2>Resultados de Predicción</h2>
+    <ul>
+        {% for resultado in resultados %}
+        <li>{{ resultado.Nombre }}: {{ resultado.Probabilidad }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

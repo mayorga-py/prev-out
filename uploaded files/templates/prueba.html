@@ -19,6 +19,9 @@
             <form action="/delete/{{ file }}" method="post" style="display:inline;">
                 <button type="submit">Eliminar</button>
             </form>
+            <a href="{{ url_for('download_file', filename=file) }}" style="text-decoration: none; color: black;">
+                <button>Descargar</button>
+            </a>
         </li>
         {% endfor %}
     </ul>

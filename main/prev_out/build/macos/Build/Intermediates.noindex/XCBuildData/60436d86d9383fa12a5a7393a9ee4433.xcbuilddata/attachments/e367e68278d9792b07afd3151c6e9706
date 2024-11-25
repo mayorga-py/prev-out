@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/desktop_window-master.dia",
+    "emit-module-dependencies" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/desktop_window-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/desktop_window-master-emit-module.dia",
+    "swift-dependencies" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/desktop_window-master.swiftdeps"
+  },
+  "/Users/dealoarroyo/.pub-cache/hosted/pub.dev/desktop_window-0.4.2/macos/Classes/DesktopWindowPlugin.swift" : {
+    "const-values" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.swiftconstvalues",
+    "dependencies" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.d",
+    "diagnostics" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.dia",
+    "index-unit-output-path" : "/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.o",
+    "llvm-bc" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.bc",
+    "object" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.o",
+    "swift-dependencies" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin.swiftdeps",
+    "swiftmodule" : "/Users/dealoarroyo/Development/Flutter/prev-out/main/prev_out/build/macos/Build/Intermediates.noindex/Pods.build/Debug/desktop_window.build/Objects-normal/arm64/DesktopWindowPlugin~partial.swiftmodule"
+  }
+}
