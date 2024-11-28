@@ -8,7 +8,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
 # Cargar datos
-df = pd.read_excel('datos_estudiantes.xlsx')
+df = pd.read_excel('GEN 17_SD2020.xlsx')
 
 # Limpieza de datos
 df = df.dropna()

@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import SimpleRNN, Dense
 
-file_path = 'Gen 18_SD2021.xlsx'
+file_path = 'GEN 17_SD2020.xlsx'
 df = pd.read_excel(file_path)
 
 data = df['R. Verbal'].values
