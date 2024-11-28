@@ -22,7 +22,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffFFE5E5), // Color de fondo de toda la página
+      backgroundColor: Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
       appBar:const CustomAppBar(),
       body: ListView(
         children: [
@@ -37,7 +37,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
       child: Center(
         child: Column(
           children: <Widget>[
-            checklist(),
+            bar(),
             lista(context),
           ],
         ),
@@ -45,28 +45,21 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     );
   }
 
-  Widget checklist() {
+  Widget bar() {
     return Container(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 17, right: 17, top: 8),
-        child: ClipRRect(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Color(0xffF47E1C), 
-              borderRadius: BorderRadius.circular(7.0), 
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Text(
-                    'Datos a graficar',
-                    style: TextStyle(fontSize: 18, color: Color(0xffFFFBFB), fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-          ),
+      width: double.infinity,
+      height: 30,
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 135, 9, 9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'Gráficas',
+        style: TextStyle(
+          color: Color.fromARGB(255, 255, 255, 255),
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -83,12 +76,12 @@ Widget lista(BuildContext context) {
             spacing: 14, // Espacio horizontal entre tarjetas
             runSpacing: 14, // Espacio vertical entre tarjetas
             children: const [
-              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFFFFF)),
-              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFFFFF)),
-              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFFFFF)),
-              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFFFFF)),
-              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFFFFF)),
-              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFFFFF)),
+              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFE5E5)),
             ],
           ),
         ),

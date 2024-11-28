@@ -16,8 +16,8 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Color(0xffFFE5E5),
       appBar: const CustomAppBar(),
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       body: ListView(
         children: [
           cuerpo(context),
@@ -27,15 +27,14 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   }
 }
 
-
 Widget cuerpo(BuildContext context) {
   return Container(
     padding: const EdgeInsets.all(8.0),
     child: Center(
       child: Column(
         children: [
-        dashboard(context)
-      ],
+          dashboard(context),
+        ],
       ),
     ),
   );
@@ -60,8 +59,10 @@ Widget dashboard(BuildContext context) {
                   tboton: '',
                   imageUrl: null,
                   onPressed: () {
-                    Navigator.push(context,
-                    MaterialPageRoute(builder: (context)=> ListApp()),);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ListApp()),
+                    );
                   },
                   height: 360,
                 ),
@@ -75,18 +76,18 @@ Widget dashboard(BuildContext context) {
                     Flexible(
                       flex: 1,
                       fit: FlexFit.loose,
-                      child: CardsD(
+                      child: CardsD( 
                         tipocard: 'ARCHIVOS',
-                        ecolor: Color(0xffFFC1CC),
+                        ecolor: Color(0xffF47E1C),
                         tboton: '',
                         imageUrl: null,
                         onPressed: () {
-                            Navigator.push(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const FilesUpload()),
                           );
                         },
-                        height:290,
+                        height: 290,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -95,11 +96,11 @@ Widget dashboard(BuildContext context) {
                       fit: FlexFit.loose,
                       child: CardsD(
                         tipocard: 'MOSTRAR DATOS EN GRAFICAS',
-                        ecolor: Color(0xffF47E1C),
+                        ecolor: Color(0xff9DB0CE),
                         tboton: '',
                         imageUrl: null,
                         onPressed: () {
-                            Navigator.push(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const GraphicsApp()),
                           );
@@ -120,26 +121,11 @@ Widget dashboard(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                flex: 1,
-                fit: FlexFit.loose,
-                child: CardsD(
-                  tipocard: 'ORGANIZACIÓN POR PRIORIDAD',
-                  ecolor: Color(0xff00263E),
-                  tboton: '',
-                  imageUrl: null,
-                  onPressed: () {
-                    print('Tarjeta ORGANIZACIÓN POR PRIORIDAD presionada');
-                  },
-                  height: 420,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Flexible(
-                flex: 1,
+                flex: 2, // Se ha cambiado flex de 1 a 2
                 fit: FlexFit.loose,
                 child: CardsD(
                   tipocard: 'MANUAL DE USO',
-                  ecolor: Color(0xff9DB0CE),
+                  ecolor: Color.fromARGB(218, 135, 9, 9),
                   tboton: '',
                   imageUrl: null,
                   onPressed: () {
@@ -148,7 +134,7 @@ Widget dashboard(BuildContext context) {
                       MaterialPageRoute(builder: (context) => const GuideApp()),
                     );
                   },
-                  height: 240,
+                  height: 670, // Ajuste de altura
                 ),
               ),
             ],
@@ -158,7 +144,6 @@ Widget dashboard(BuildContext context) {
     ),
   );
 }
-
 
 class CardsD extends StatelessWidget {
   final String tipocard;
@@ -216,13 +201,13 @@ class CardsD extends StatelessWidget {
                             imageUrl!,
                             fit: BoxFit.cover,
                             width: imageWidth ?? double.infinity,
-                            height: imageHeight ?? 150, // Altura por defecto
+                            height: imageHeight ?? 150,
                           )
                         : Image.asset(
                             imageUrl!,
                             fit: BoxFit.cover,
                             width: imageWidth ?? double.infinity,
-                            height: imageHeight ?? 150, // Altura por defecto
+                            height: imageHeight ?? 150,
                           ),
                   ),
                 ),
@@ -246,5 +231,3 @@ class CardsD extends StatelessWidget {
     );
   }
 }
-
-

@@ -25,7 +25,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          const Color(0xffFFE5E5), // Color de fondo de toda la página
+          const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
@@ -41,36 +41,28 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     return Center(
       child: Column(
         children: <Widget>[
-          checklist(),
+          bar(),
           lista(context),
         ],
       ),
     );
   }
 
-  Widget checklist() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ClipRRect(
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xffF5BCBA), // Color del card
-            borderRadius: BorderRadius.circular(7.0), // Bordes redondeados
-          ),
-          child: const Row(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(5.0),
-                child: Text(
-                  'Manual de uso',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xff000000),
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
+  Widget bar() {
+        return Container(
+      width: double.infinity,
+      height: 30,
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 135, 9, 9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'Manual de uso',
+        style: TextStyle(
+          color: Color.fromARGB(255, 255, 255, 255),
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -78,14 +70,14 @@ class _CombinedWidgetState extends State<CombinedWidget> {
 
 Widget lista(BuildContext context) {
   return Container(
-    color: const Color(0xffFFE5E5), // Color de fondo de toda la página
+    color: const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
     margin: const EdgeInsets.all(8),
     child: Center(
       child: Container(
-        width: double.infinity, // Ocupar todo el espacio horizontal
+        width: 1445, // Ocupar todo el espacio horizontal
         height: MediaQuery.of(context).size.height, // Ocupar todo el espacio vertical
         decoration: BoxDecoration(
-          color: Colors.white, // Color del card
+          color: Color (0xffFFE5E5), // Color del card
           borderRadius: BorderRadius.circular(13.0), // Bordes redondeados
           boxShadow: [
             BoxShadow(

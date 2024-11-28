@@ -42,7 +42,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffFFE5E5), // Color de fondo de toda la página
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
@@ -52,12 +52,34 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     );
   }
 
+
+//Barra con nombre de la pagina
+  Widget bar() {
+    return Container(
+      width: double.infinity,
+      height: 30,
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 135, 9, 9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Text(
+        'Listado de alumnos',
+        style: TextStyle(
+          color: Color.fromARGB(255, 255, 255, 255),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   Widget contenido() {
     return Container(
       child: Center(
         child: Column(
           children: <Widget>[
-            //checklist(),
+            bar(),
             lista(),
           ],
         ),
@@ -65,83 +87,16 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     );
   }
 
-  Widget checklist() {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ClipRRect(
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xffF5BCBA), // Color del card
-              borderRadius: BorderRadius.circular(7.0), // Bordes redondeados
-            ),
-            child: Row(
-              children: selectedOptions.keys.map((String key) {
-                List<Widget> children = [];
-                children.add(
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Checkbox(
-                      value: selectedOptions[key],
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          selectedOptions[key] = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                );
-
-                if (key == 'Carrera') {
-                  children.add(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 7.0),
-                      child: DropdownButton<String>(
-                        value: selectedCarrera,
-                        hint: Text(key),
-                        icon: const Icon(Icons.arrow_drop_down),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCarrera = newValue;
-                          });
-                        },
-                        items: carreras.map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  );
-                } else {
-                  children.add(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Text(key),
-                    ),
-                  );
-                }
-
-                return Row(children: children);
-              }).toList(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget lista() {
     return Container(
-      color: const Color(0xffFFE5E5), // Color de fondo de toda la página
+      color: const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
       margin: const EdgeInsets.only(left: 16, right: 16),
       child: Center(
         child: Container(
-          width: double.infinity, // Ocupar todo el espacio horizontal
+          width: 1445, // Ocupar todo el espacio horizontal
           height: MediaQuery.of(context).size.height, // Ocupar todo el espacio vertical
           decoration: BoxDecoration(
-            color: Colors.white, // Color del card
+            color: Color(0xffFFE5E5), // Color del card
             borderRadius: BorderRadius.circular(13.0), // Bordes redondeados
             boxShadow: [
               BoxShadow(

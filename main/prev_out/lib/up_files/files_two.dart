@@ -71,13 +71,13 @@ void _listFiles() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffFFE5E5),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
           Stack(
             children: [
-              menu(),
+              bar(),
               archivos(),
               if (currentUserRole == 'admin') nuevoUsuario(),
               if (currentUserRole == 'admin') usuarios(),
@@ -88,19 +88,22 @@ void _listFiles() {
     );
   }
 
-  Widget menu() {
+  Widget bar() {
     return Container(
       width: double.infinity,
       height: 30,
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: const Color(0xffFFC1CC),
+        color: const Color.fromARGB(255, 135, 9, 9),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Text(
         'Archivos',
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Color.fromARGB(255, 255, 255, 255),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -109,9 +112,9 @@ void _listFiles() {
 
   Widget nuevoUsuario() {
     return Container(
-      width: 500,
-      height: 300, // Aumentamos el tamaño para acomodar el nuevo campo
-      margin: const EdgeInsets.only(top: 90, left: 800, right: 20),
+      width: 725,
+      height: 290, // Aumentamos el tamaño para acomodar el nuevo campo
+      margin: const EdgeInsets.only(top: 80, left: 775, right: 20),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: const Color(0xffF0D2D1),
@@ -122,7 +125,7 @@ void _listFiles() {
           const Text(
             'Añadir nuevo usuario',
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -130,7 +133,7 @@ void _listFiles() {
             top: 60,
             left: 10,
             child: SizedBox(
-              width: 250,
+              width: 500,
               height: 40,
               child: TextField(
                 controller: _emailController,
@@ -199,11 +202,14 @@ void _listFiles() {
       ),
     );
   }
+
+
+  
   Widget usuarios() {
     return Container(
-      width: 500,
-      height: 250,
-      margin: const EdgeInsets.only(top: 390, left: 800, right: 20),
+      width: 725,
+      height: 290,
+      margin: const EdgeInsets.only(top: 390, left: 775, right: 20),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: const Color(0xffF0D2D1),
@@ -285,9 +291,9 @@ void _listFiles() {
 
   Widget archivos() {
   return Container(
-    width: 700,
-    height: 550,
-    margin: const EdgeInsets.only(top: 90, left: 20),
+    width: 720,
+    height: 600,
+    margin: const EdgeInsets.only(top: 80, left: 35),
     padding: const EdgeInsets.all(15),
     decoration: BoxDecoration(
       color: const Color(0xffF0D2D1),
@@ -298,7 +304,7 @@ void _listFiles() {
       children: [
         const Text(
           'Añade el archivo a utilizar',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
         Row(

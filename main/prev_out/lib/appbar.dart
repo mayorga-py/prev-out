@@ -8,7 +8,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: const Color(0xffFFF5F5),
+      backgroundColor: const Color.fromRGBO(21, 24, 48, 1),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               'PREV-OUT',
               style: TextStyle(
                 fontSize: 28,
-                color: Color(0xff002D72),
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
@@ -46,7 +46,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               decoration: const InputDecoration(
                 hintText: 'Inserta una matrícula para buscar',
                 hintStyle: TextStyle(color: Colors.grey),
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: Color.fromARGB(255, 135, 9, 9)),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(vertical: 8),
               ),
@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: PopupMenuButton<String>(
             icon: const Icon(
               Icons.account_circle,
-              color: Color.fromARGB(255, 80, 74, 74),
+              color: Color.fromARGB(255, 245, 241, 241), 
               size: 40,
             ),
             onSelected: (String result) async {
