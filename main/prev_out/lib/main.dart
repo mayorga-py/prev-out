@@ -7,10 +7,11 @@ import 'package:desktop_window/desktop_window.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Inicializar Firebase
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Asegúrate de tener la configuración correcta en firebase_options.dart
+    options: DefaultFirebaseOptions
+        .currentPlatform, // Asegúrate de tener la configuración correcta en firebase_options.dart
   );
 
   // Establecer el tamaño mínimo de la ventana (solo relevante para aplicaciones de escritorio)
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/home': (context) => const HomeView(),
-        '/login': (context) => LoginView(), // Elimina el const ya que LoginView tiene controladores de texto
+        '/login': (context) =>
+            LoginView(), // Elimina el const ya que LoginView tiene controladores de texto
       },
     );
   }
