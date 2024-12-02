@@ -96,7 +96,7 @@ class _CombinedWidgetState extends State<CombinedWidget> {
           width: 1445, // Ocupar todo el espacio horizontal
           height: MediaQuery.of(context).size.height, // Ocupar todo el espacio vertical
           decoration: BoxDecoration(
-            color: Color(0xffFFE5E5), // Color del card
+            color: Color.fromARGB(255, 214, 213, 213), // Color del card
             borderRadius: BorderRadius.circular(13.0), // Bordes redondeados
             boxShadow: [
               BoxShadow(

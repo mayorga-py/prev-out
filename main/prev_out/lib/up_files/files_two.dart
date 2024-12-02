@@ -117,7 +117,7 @@ void _listFiles() {
       margin: const EdgeInsets.only(top: 80, left: 775, right: 20),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xffF0D2D1),
+        color: const Color.fromARGB(255, 214, 213, 213),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Stack(
@@ -212,7 +212,7 @@ void _listFiles() {
       margin: const EdgeInsets.only(top: 390, left: 775, right: 20),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xffF0D2D1),
+        color: const Color.fromARGB(255, 214, 213, 213),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -296,7 +296,7 @@ void _listFiles() {
     margin: const EdgeInsets.only(top: 80, left: 35),
     padding: const EdgeInsets.all(15),
     decoration: BoxDecoration(
-      color: const Color(0xffF0D2D1),
+      color: const Color.fromARGB(255, 214, 213, 213),
       borderRadius: BorderRadius.circular(8),
     ),
     child: Column(
