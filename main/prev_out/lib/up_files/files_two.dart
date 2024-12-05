@@ -1,13 +1,13 @@
+import 'dart:io';
+import 'dart:async'; // Para usar Stream y listeners
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:prev_out/appbar.dart';
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
-// ignore: unused_import
-import 'package:path/path.dart' as path;
-import 'dart:io';
-
-
+import 'package:prev_out/appbar.dart';
 
 class FilesUpload extends StatefulWidget {
   const FilesUpload({super.key});
@@ -25,31 +25,68 @@ class _FilesUploadState extends State<FilesUpload> {
   String? currentUserRole;
   String _selectedRole = 'user'; // Default role
 
+  String? _selectedFilePath;
+  String _predictionResult = "";
+
+  // Ruta del directorio a monitorear
+  final String _watchDirectory = '/ruta/a/tu/directorio';
+
+  // StreamSubscription para escuchar cambios en el directorio
+  StreamSubscription<FileSystemEvent>? _directorySubscription;
+
   @override
   void initState() {
     super.initState();
     _getCurrentUserRole();
-    _listFiles(); // Listar los archivos al iniciar
+    _listFiles(); // Listar archivos actuales al iniciar
+    _watchDirectoryChanges(); // Empezar a monitorear cambios en el directorio
   }
 
+  @override
+  void dispose() {
+    _directorySubscription?.cancel(); // Detener el listener al cerrar
+    super.dispose();
+  }
 
-void _listFiles() {
-  final directory = Directory(
-      r'C:\Users\Oswaldo Larrinaga\Desktop\prev-out\main\prev_out\app\services\uploads');
+  // Listar los archivos existentes en el directorio
+  void _listFiles() {
+    final directory = Directory(_watchDirectory);
+    if (directory.existsSync()) {
+      setState(() {
+        fileNames = directory
+            .listSync()
+            .where((item) => item is File)
+            .map((item) => path.basename(item.path))
+            .toList();
+      });
+    }
+  }
 
-  if (directory.existsSync()) {
-    setState(() {
-      fileNames = directory
-          .listSync()
-          .where((item) => item is File)
-          .map((item) => path.basename(item.path))
-          .toList()
-          .cast<String>();
+  // Monitorear cambios en el directorio
+  void _watchDirectoryChanges() {
+    final directory = Directory(_watchDirectory);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true); // Crear directorio si no existe
+    }
+
+    _directorySubscription = directory.watch().listen((event) {
+      if (event.type == FileSystemEvent.create) {
+        // Nuevo archivo detectado
+        final newFilePath = event.path;
+        setState(() {
+          fileNames
+              .add(path.basename(newFilePath)); // Actualizar lista de archivos
+          _selectedFilePath =
+              newFilePath; // Seleccionar automáticamente el nuevo archivo
+        });
+
+        // Llamar a la predicción automáticamente
+        _uploadAndPredict(newFilePath);
+      }
     });
   }
-}
 
-
+  // Obtener el rol del usuario actual
   Future<void> _getCurrentUserRole() async {
     final User? user = _auth.currentUser;
     if (user != null) {
@@ -61,11 +98,51 @@ void _listFiles() {
     }
   }
 
+  // Subir archivo y realizar predicción
+  Future<void> _uploadAndPredict(String filePath) async {
+    var uri =
+        Uri.parse('http://127.0.0.1:5001/predict'); // Cambia a la URL de tu API
+    var request = http.MultipartRequest('POST', uri);
+
+    request.files.add(
+      await http.MultipartFile.fromPath('file', filePath),
+    );
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseBody = await http.Response.fromStream(response);
+      var decodedResponse = json.decode(responseBody.body);
+      setState(() {
+        _predictionResult = decodedResponse['message'];
+      });
+    } else {
+      setState(() {
+        _predictionResult = "Error al realizar la predicción.";
+      });
+    }
+  }
+
+  // Comprobar si el usuario tiene rol de administrador
   Future<bool> _isAdmin() async {
     if (currentUserRole == null) {
       await _getCurrentUserRole();
     }
     return currentUserRole == 'admin';
+  }
+
+  // Selección de archivo
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedFilePath = result.files.single.path;
+      });
+    }
   }
 
   @override
@@ -108,7 +185,27 @@ void _listFiles() {
     );
   }
 
-  
+  Widget archivos() {
+    return Container(
+      margin: const EdgeInsets.only(top: 70, left: 20),
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: _pickFile,
+            child: const Text("Seleccionar archivo"),
+          ),
+          if (_selectedFilePath != null)
+            Text("Archivo seleccionado: ${path.basename(_selectedFilePath!)}"),
+          ElevatedButton(
+            onPressed: () => _uploadAndPredict(_selectedFilePath!),
+            child: const Text("Subir y predecir"),
+          ),
+          if (_predictionResult.isNotEmpty)
+            Text("Resultado de la predicción: $_predictionResult"),
+        ],
+      ),
+    );
+  }
 
   Widget nuevoUsuario() {
     return Container(
@@ -203,8 +300,6 @@ void _listFiles() {
     );
   }
 
-
-  
   Widget usuarios() {
     return Container(
       width: 725,
@@ -219,234 +314,75 @@ void _listFiles() {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Usuarios Registrados',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            'Usuarios',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('usuarios').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const CircularProgressIndicator();
-                }
-
-                final users = snapshot.data!.docs;
-                List<Widget> userWidgets = [];
-                for (var user in users) {
-                  final userEmail = user['email'];
-                  final userUid = user.id;
-                  final userRole = user['role'];
-
-                  final userWidget = ListTile(
-                    title: Text('$userEmail - $userRole'),
+          FutureBuilder(
+            future: _firestore.collection('usuarios').get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+              if (!snapshot.hasData) {
+                return const Text('No se encontraron usuarios');
+              }
+              final docs = snapshot.data!.docs;
+              return Column(
+                children: docs.map<Widget>((doc) {
+                  return ListTile(
+                    title: Text(doc['email']),
+                    subtitle: Text('Rol: ${doc['role']}'),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: const Icon(Icons.delete),
                       onPressed: () async {
-                        await _eliminarUsuario(userUid);
+                        await _firestore
+                            .collection('usuarios')
+                            .doc(doc.id)
+                            .delete();
                       },
                     ),
                   );
-                  userWidgets.add(userWidget);
-                }
-                return ListView(
-                  children: userWidgets,
-                );
-              },
-            ),
+                }).toList(),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Future<void> _eliminarUsuario(String uid) async {
-  try {
-    // Obtener la referencia del usuario en FirebaseAuth
-    User? userToDelete = await _auth.getUser(uid);
-
-    // Verificar si el usuario existe en FirebaseAuth
-    if (userToDelete != null) {
-      // Eliminar al usuario de FirebaseAuth
-      await userToDelete.delete();
-    }
-
-    // Eliminar el documento del usuario de Firestore
-    await _firestore.collection('usuarios').doc(uid).delete();
-
-    // Mostrar mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Usuario eliminado exitosamente'),
-      ),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error al eliminar el usuario: $e'),
-      ),
-    );
-  }
-}
-
-  Widget archivos() {
-  return Container(
-    width: 720,
-    height: 600,
-    margin: const EdgeInsets.only(top: 80, left: 35),
-    padding: const EdgeInsets.all(15),
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(255, 214, 213, 213),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Añade el archivo a utilizar',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                color: const Color(0xffffffff),
-              ),
-              width: 200,
-              height: 30,
-            ),
-            const SizedBox(width: 20),
-            botonSubir(),
-          ],
-        ),
-        const SizedBox(height: 40),
-        const Text(
-          'Historial de archivos',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 10),
-        Expanded(
-          child: ListView.builder(
-            itemCount: fileNames.length,
-            itemBuilder: (context, index) {
-              return Text(fileNames[index]);
-            },
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget botonSubir() {
-  return ElevatedButton(
-    style: ButtonStyle(
-      backgroundColor: MaterialStateProperty.all(const Color(0xff0D00A4)),
-    ),
-    onPressed: () async {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-
-      if (result != null) {
-        File file = File(result.files.single.path!);
-        String fileName = result.files.single.name;
-
-        // Ruta de la carpeta de destino
-        final directory = Directory(
-            r'C:\Users\Oswaldo Larrinaga\Desktop\prev-out\main\prev_out\app\services\uploads');
-
-        if (!directory.existsSync()) {
-          directory.createSync(recursive: true);
-        }
-
-        // Guardar el archivo en la carpeta de destino
-        final File newFile = await file.copy('${directory.path}/$fileName');
-
-        // Actualizar la lista de archivos
-        setState(() {
-          fileNames.add(newFile.path);
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Archivo subido exitosamente'),
-          ),
-        );
-      } else {
-        // El usuario canceló la selección del archivo
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se seleccionó ningún archivo'),
-          ),
-        );
-      }
-    },
-    child: const Text(
-      'Subir',
-      style: TextStyle(color: Colors.white),
-    ),
-  );
-}
-
-
-
   Widget botonAdd() {
     return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(const Color(0xff0D00A4)),
-      ),
       onPressed: () async {
-        final String email = _emailController.text;
-        final String password = _passwordController.text;
-        final String role = _selectedRole;
-
-        if (email.isEmpty || password.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Por favor, complete todos los campos'),
-            ),
-          );
+        if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
           return;
         }
-
-        try {
-          final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-
-          // Agregar el usuario con el rol a Firestore
-          await _firestore.collection('usuarios').doc(userCredential.user!.uid).set({
-            'email': email,
-            'role': role,
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Usuario añadido exitosamente'),
-            ),
-          );
-
-          // Limpiar los campos después de crear el usuario
-          _emailController.clear();
-          _passwordController.clear();
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error al añadir el usuario: $e'),
-            ),
-          );
-        }
+        await _createUser();
       },
-      child: const Text(
-        'Añadir',
-        style: TextStyle(color: Colors.white),
-      ),
+      child: const Text('Añadir usuario'),
     );
   }
-}
 
-extension on FirebaseAuth {
-  getUser(String uid) {}
+  Future<void> _createUser() async {
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      await _firestore.collection('usuarios').doc(_auth.currentUser!.uid).set({
+        'email': _emailController.text,
+        'role': _selectedRole,
+      });
+
+      setState(() {
+        _emailController.clear();
+        _passwordController.clear();
+      });
+    } catch (e) {
+      print("Error creando usuario: $e");
+    }
+  }
 }
