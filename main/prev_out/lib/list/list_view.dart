@@ -42,7 +42,8 @@ class _CombinedWidgetState extends State<CombinedWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
+      backgroundColor: const Color.fromARGB(
+          255, 255, 255, 255), // Color de fondo de toda la página
       appBar: const CustomAppBar(),
       body: ListView(
         children: [
@@ -51,7 +52,6 @@ class _CombinedWidgetState extends State<CombinedWidget> {
       ),
     );
   }
-
 
 //Barra con nombre de la pagina
   Widget bar() {
@@ -89,12 +89,15 @@ class _CombinedWidgetState extends State<CombinedWidget> {
 
   Widget lista() {
     return Container(
-      color: const Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
+      color: const Color.fromARGB(
+          255, 255, 255, 255), // Color de fondo de toda la página
       margin: const EdgeInsets.only(left: 16, right: 16),
       child: Center(
         child: Container(
           width: 1445, // Ocupar todo el espacio horizontal
-          height: MediaQuery.of(context).size.height, // Ocupar todo el espacio vertical
+          height: MediaQuery.of(context)
+              .size
+              .height, // Ocupar todo el espacio vertical
           decoration: BoxDecoration(
             color: Color(0xffFFE5E5), // Color del card
             borderRadius: BorderRadius.circular(13.0), // Bordes redondeados
