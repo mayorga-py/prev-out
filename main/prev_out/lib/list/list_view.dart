@@ -17,6 +17,8 @@ class _ListApp extends State<ListApp> {
   String _predictionResult = "";
   List<String> fileNames = [];
   List<Map<String, dynamic>> data = []; // Datos cargados desde el JSON
+  List<Map<String, dynamic>> filteredData = []; // Datos filtrados
+  TextEditingController _searchController = TextEditingController(); // Controlador para el campo de búsqueda
 
   // Ruta del directorio a monitorear
   final String _watchDirectory = '/ruta/a/tu/directorio';
@@ -28,6 +30,8 @@ class _ListApp extends State<ListApp> {
     super.initState();
     _listFiles(); // Listar archivos actuales al iniciar
     _watchDirectoryChanges(); // Empezar a monitorear cambios en el directorio
+    filteredData = data;  // Inicializa los datos filtrados
+    
   }
 
   @override
@@ -114,8 +118,6 @@ class _ListApp extends State<ListApp> {
 
 
 
-
-
  // Función para seleccionar y leer el archivo JSON
   Future<void> _pickFileJson() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -130,15 +132,16 @@ class _ListApp extends State<ListApp> {
   }
 
 
-//Función para leer Json
+//Función para leer JSON
 Future<void> _readJsonFile(String filePath) async {
   var file = File(filePath);
 
   try {
     String jsonString = await file.readAsString();
     var jsonData = jsonDecode(jsonString);
-    var sheetData = jsonData['Sheet1']; // Asegúrate de acceder a la clave correcta.
+    var sheetData = jsonData['Sheet1']; // Aseguramos acceder a la clave correcta.
 
+    // Mapeo de los códigos de "PROGRAMA EDUCATIVO" a los nombres de carrera
     final Map<int, String> carreraMap = {
       0: 'Administración',
       1: 'Automotriz',
@@ -147,18 +150,27 @@ Future<void> _readJsonFile(String filePath) async {
       4: 'Negocios',
       5: 'Redes y Telecomunicaciones',
       6: 'Sistemas',
-      7: 'Carrera 8',
+      7: 'Otro',
     };
 
     List<Map<String, dynamic>> extractedData = [];
     for (var item in sheetData) {
+      // Obtener matrícula
       var matricula = item['Matricula'] ?? 'Sin matrícula';
-      var carreraNumero = item['PROGRAMA EDUCATIVO']; // Deja el valor como está para el mapa
+
+      // Obtener carrera
+      var carreraNumero = item['PROGRAMA EDUCATIVO'];
+      String carreraNombre = 'Carrera desconocida';
+      if (carreraNumero is int) {
+        carreraNombre = carreraMap[carreraNumero] ?? 'Carrera desconocida';
+      }
+
+      // Obtener porcentaje
       var porcentaje = item['Probabilidad Baja (%)']?.toString() ?? '0.0';
 
-      var carreraNombre = carreraMap[carreraNumero] ?? 'Carrera desconocida';
+      // Agregar datos procesados
       extractedData.add({
-        'matricula': matricula,
+        'matricula': matricula.toString(),
         'carrera': carreraNombre,
         'porcentaje': porcentaje,
       });
@@ -166,6 +178,7 @@ Future<void> _readJsonFile(String filePath) async {
 
     setState(() {
       data = extractedData;
+      filteredData = extractedData; // Inicializar datos filtrados
     });
   } catch (e) {
     print("Error al leer el archivo JSON: $e");
@@ -173,130 +186,146 @@ Future<void> _readJsonFile(String filePath) async {
 }
 
 
+void _searchMatricula() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredData = data
+          .where((item) => item['matricula'].toString().toLowerCase().contains(query))
+          .toList();
+    });
+  }
 
 
+void filterByCareer(String career) {
+    if (career == "Todas") {
+      setState(() {
+        filteredData = List.from(data);
+      });
+    } else {
+      setState(() {
+        filteredData = data.where((row) => row['carrera'] == career).toList();
+      });
+    }
+  }
 
 
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: CustomAppBar(),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Fila para todos los botones en la parte superior
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start, // Alinea al inicio
-            crossAxisAlignment: CrossAxisAlignment.center, // Centra verticalmente
-            children: [
-              // Campo de búsqueda
-              Container(
-                width: 400, // Ajusta el ancho según tus necesidades
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 3,
-                      offset: const Offset(0, 1),
+ @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Fila para todos los botones en la parte superior
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // Campo de búsqueda
+                Container(
+                  width: 400,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Inserta una matrícula para buscar',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8),
                     ),
-                  ],
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Inserta una matrícula para buscar',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    prefixIcon: Icon(Icons.search, color: Color.fromARGB(255, 135, 9, 9)),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
                   ),
                 ),
-              ),
-              const SizedBox(width: 20), // Espaciado entre elementos
-              // Botón para seleccionar CSV
-              ElevatedButton(
-                onPressed: _pickFileJson,
-                child: const Text("Seleccionar archivo JSON"),
-              ),
-              const SizedBox(width: 20),
-              // Botón para seleccionar archivo general
-              ElevatedButton(
-                onPressed: _pickFilexlsx,
-                child: const Text("Seleccionar archivo"),
-              ),
-              const SizedBox(width: 20),
-              // Botón para subir y predecir
-              ElevatedButton(
-                onPressed: () {
-                  if (_selectedFilePath != null) {
-                    _uploadAndPredict(_selectedFilePath!);
-                  }
-                },
-                child: const Text("Subir y predecir"),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // Información del archivo seleccionado
-          if (_selectedFilePath != null)
-            Text(
-              "Archivo seleccionado: ${path.basename(_selectedFilePath!)}",
-              style: const TextStyle(fontWeight: FontWeight.w600),
+                IconButton(
+                   icon: Icon(Icons.search, color: Color.fromARGB(255, 135, 9, 9)),
+                  onPressed: _searchMatricula,
+                ),
+                const SizedBox(width: 20), // Espaciado entre elementos
+                // Botón para seleccionar JSON
+                ElevatedButton(
+                  onPressed: _pickFileJson,
+                  child: const Text("Seleccionar archivo JSON"),
+                ),
+                const SizedBox(width: 20),
+                // Botón para seleccionar archivo general
+                ElevatedButton(
+                  onPressed: _pickFilexlsx,
+                  child: const Text("Seleccionar archivo"),
+                ),
+                const SizedBox(width: 20),
+                // Botón para subir y predecir
+                ElevatedButton(
+                  onPressed: () {
+                    if (_selectedFilePath != null) {
+                      _uploadAndPredict(_selectedFilePath!);
+                    }
+                  },
+                  child: const Text("Subir y predecir"),
+                ),
+              ],
             ),
-          const SizedBox(height: 10),
-          if (_predictionResult.isNotEmpty)
-            Text(
-              "Resultado de la predicción: $_predictionResult",
-              style: const TextStyle(fontSize: 16),
-            ),
-          const SizedBox(height: 20),
-          // Tabla de datos o mensaje de datos no cargados
-          data.isEmpty
-              ? Expanded(
-                  child: Center(
-                    child: const Text(
-                      "No hay datos cargados",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+            const SizedBox(height: 20),
+            // Información del archivo seleccionado
+            if (_selectedFilePath != null)
+              Text(
+                "Archivo seleccionado: ${path.basename(_selectedFilePath!)}",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            const SizedBox(height: 10),
+            if (_predictionResult.isNotEmpty)
+              Text(
+                "Resultado de la predicción: $_predictionResult",
+                style: const TextStyle(fontSize: 16),
+              ),
+            const SizedBox(height: 20),
+            // Tabla de datos o mensaje de datos no cargados
+            Expanded(
+              child: filteredData.isEmpty
+                  ? Center(
+                      child: const Text(
+                        "No hay resultados para esta matrícula",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          columns: const [
+                            DataColumn(label: Text('Matrícula')),
+                            DataColumn(label: Text('Carrera')),
+                            DataColumn(label: Text('Porcentaje')),
+                          ],
+                          rows: filteredData
+                              .map(
+                                (row) => DataRow(
+                                  cells: [
+                                    DataCell(Text(row['matricula'].toString())),
+                                    DataCell(Text(row['carrera'].toString())),
+                                    DataCell(Text('${row['porcentaje']}%')),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ),
                     ),
-                  ),
-                )
-              : Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('Matrícula')),
-                          DataColumn(label: Text('Carrera')),
-                          DataColumn(label: Text('Porcentaje')),
-                        ],
-                        rows: data
-                            .map(
-                              (row) => DataRow(
-                                cells: [
-                                  DataCell(Text(row['matricula'].toString())),
-                                  DataCell(Text(row['carrera'].toString())),
-                                  DataCell(Text('${row['porcentaje']}%')),
-                                ],
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
