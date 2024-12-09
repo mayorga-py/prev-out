@@ -79,7 +79,7 @@ class _FilesUploadState extends State<FilesUpload> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Text(
-        'Archivos',
+        'Usuarios',
         style: TextStyle(
           color: Color.fromARGB(255, 255, 255, 255),
           fontWeight: FontWeight.bold,

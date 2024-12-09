@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart'; // Importar el paquete necesario
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:prev_out/appbar.dart';
+
 class GraphicsApp extends StatelessWidget {
   const GraphicsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const CombinedWidget(),
+    return const MaterialApp(
+      home: CombinedWidget(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -19,20 +25,79 @@ class CombinedWidget extends StatefulWidget {
 }
 
 class _CombinedWidgetState extends State<CombinedWidget> {
+  List<dynamic>? jsonData; // Variable para almacenar datos del archivo JSON
+
+  // Función para seleccionar y leer el archivo JSON
+  Future<void> _pickFileJson() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'], // Aceptar solo archivos JSON
+    );
+
+    if (result != null) {
+      var filePath = result.files.single.path;
+      if (filePath != null) {
+        await _readJsonFile(filePath);
+      }
+    }
+  }
+
+  // Función para leer el archivo JSON
+  Future<void> _readJsonFile(String filePath) async {
+    var file = File(filePath);
+
+    try {
+      String jsonString = await file.readAsString();
+      setState(() {
+        jsonData = jsonDecode(jsonString); // Procesar el archivo JSON
+      });
+      print("Archivo JSON cargado con éxito: $jsonData");
+    } catch (e) {
+      print("Error al leer el archivo JSON: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255), // Color de fondo de toda la página
-      appBar:const CustomAppBar(),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Fondo
+      appBar: const CustomAppBar(), // Respetar la CustomAppBar
       body: ListView(
         children: [
           contenido(context),
+          // Botón para cargar archivo JSON
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _pickFileJson, // Asignar función al botón
+              child: const Text("Seleccionar archivo JSON"),
+            ),
+          ),
+          if (jsonData != null) ...[
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                "Datos del archivo JSON:",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                jsonData.toString(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ]
         ],
       ),
     );
   }
-}
-   Widget contenido(context) {
+
+  Widget contenido(context) {
     return Container(
       child: Center(
         child: Column(
@@ -65,31 +130,29 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     );
   }
 
-
-Widget lista(BuildContext context) {
-  return Container(
-    child: Container(
-        width: double.infinity, // Ocupar todo el espacio horizontal// Ocupar todo el espacio vertical
+  Widget lista(BuildContext context) {
+    return Container(
+      child: Container(
+        width: double.infinity,
         child: Padding(
           padding: const EdgeInsets.all(17.0),
           child: Wrap(
-            spacing: 14, // Espacio horizontal entre tarjetas
-            runSpacing: 14, // Espacio vertical entre tarjetas
+            spacing: 14,
+            runSpacing: 14,
             children: const [
-              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "grafica de barra 1", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "grafica de barra 2", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "grafica de barra 3", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 1", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 2", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 3", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 1", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 2", fcolor: Color(0xffFFE5E5)),
+              Graphics(titulo: "Gráfica de barra 3", fcolor: Color(0xffFFE5E5)),
             ],
           ),
         ),
-    ),
-  );
+      ),
+    );
+  }
 }
-
-
 
 class Graphics extends StatelessWidget {
   final String titulo;
@@ -104,8 +167,8 @@ class Graphics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 365, // Ajusta el ancho de Graphics
-      height: 200, // Ajusta la altura de Graphics
+      width: 365,
+      height: 200,
       child: Container(
         decoration: BoxDecoration(
           color: fcolor,
@@ -139,3 +202,7 @@ class Graphics extends StatelessWidget {
     );
   }
 }
+
+
+
+

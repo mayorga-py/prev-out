@@ -13,39 +13,49 @@ class LoginView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.centerRight,
         children: [
           fondo(),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: Container(
-                width: 450,
-                height: 650,
-                color: const Color.fromARGB(186, 241, 228, 232),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    nombre(),
-                    const SizedBox(height: 90),
-                    login(),
-                    campoUsuario(),
-                    campoContrasena(),
-                    botonOlvideContrasena(context), // Modificado
-                    const SizedBox(height: 130),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: botonEntrar(context),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // Obtiene el ancho disponible de la pantalla
+              double screenWidth = constraints.maxWidth;
+
+              return Align(
+                alignment: Alignment.centerRight,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      width: screenWidth / 3, // 1/3 del ancho total
+                      height: constraints.maxHeight, // Ocupa toda la altura
+                      color: const Color.fromARGB(186, 241, 228, 232),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          nombre(),
+                          const SizedBox(height: 90),
+                          login(),
+                          campoUsuario(),
+                          campoContrasena(),
+                          botonOlvideContrasena(context),
+                          const SizedBox(height: 130),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: botonEntrar(context),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

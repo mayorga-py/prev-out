@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
-import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:prev_out/appbar.dart';
@@ -17,7 +16,7 @@ class _ListApp extends State<ListApp> {
   String? _selectedFilePath;
   String _predictionResult = "";
   List<String> fileNames = [];
-  List<Map<String, dynamic>> data = []; // Datos cargados desde el CSV
+  List<Map<String, dynamic>> data = []; // Datos cargados desde el JSON
 
   // Ruta del directorio a monitorear
   final String _watchDirectory = '/ruta/a/tu/directorio';
@@ -117,69 +116,61 @@ class _ListApp extends State<ListApp> {
 
 
 
-
-
-
-
-
-
-
-  // Función para seleccionar y leer el archivo CSV
-  Future<void> _pickFilecsv() async {
+ // Función para seleccionar y leer el archivo JSON
+  Future<void> _pickFileJson() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['csv'], // Aceptar solo archivos CSV
+      allowedExtensions: ['json'], // Aceptar solo archivos JSON
     );
 
     if (result != null) {
       var filePath = result.files.single.path;
-      _readCsvFile(filePath!);
+      _readJsonFile(filePath!);
     }
   }
 
-  // Función para leer el archivo CSV
-  Future<void> _readCsvFile(String filePath) async {
-    var file = File(filePath);
 
-    try {
-      String csvString = await file.readAsString(encoding: latin1);
-      List<List<dynamic>> rows =
-          CsvToListConverter(fieldDelimiter: ";").convert(csvString);
+//Función para leer Json
+Future<void> _readJsonFile(String filePath) async {
+  var file = File(filePath);
 
-      List<Map<String, dynamic>> extractedData = [];
-      final Map<String, String> carreraMap = {
-        '0': 'Administración',
-        '1': 'Automotriz',
-        '2': 'Manufactura',
-        '3': 'Mecatrónica',
-        '4': 'Negocios',
-        '5': 'Redes y Telecomunicaciones',
-        '6': 'Sistemas',
-        '7': 'Carrera 8',
-      };
+  try {
+    String jsonString = await file.readAsString();
+    var jsonData = jsonDecode(jsonString);
+    var sheetData = jsonData['Sheet1']; // Asegúrate de acceder a la clave correcta.
 
-      for (var row in rows) {
-        if (row.length > 145) {
-          var matricula = row[0];
-          var carrera = row[6]?.toString() ?? '';
-          var porcentaje = row[145]?.toString() ?? '0';
+    final Map<int, String> carreraMap = {
+      0: 'Administración',
+      1: 'Automotriz',
+      2: 'Manufactura',
+      3: 'Mecatrónica',
+      4: 'Negocios',
+      5: 'Redes y Telecomunicaciones',
+      6: 'Sistemas',
+      7: 'Carrera 8',
+    };
 
-          var carreraTexto = carreraMap[carrera] ?? 'Carrera desconocida';
-          extractedData.add({
-            'matricula': matricula,
-            'carrera': carreraTexto,
-            'porcentaje': porcentaje,
-          });
-        }
-      }
+    List<Map<String, dynamic>> extractedData = [];
+    for (var item in sheetData) {
+      var matricula = item['Matricula'] ?? 'Sin matrícula';
+      var carreraNumero = item['PROGRAMA EDUCATIVO']; // Deja el valor como está para el mapa
+      var porcentaje = item['Probabilidad Baja (%)']?.toString() ?? '0.0';
 
-      setState(() {
-        data = extractedData;
+      var carreraNombre = carreraMap[carreraNumero] ?? 'Carrera desconocida';
+      extractedData.add({
+        'matricula': matricula,
+        'carrera': carreraNombre,
+        'porcentaje': porcentaje,
       });
-    } catch (e) {
-      print("Error al leer el archivo: $e");
     }
+
+    setState(() {
+      data = extractedData;
+    });
+  } catch (e) {
+    print("Error al leer el archivo JSON: $e");
   }
+}
 
 
 
@@ -229,8 +220,8 @@ Widget build(BuildContext context) {
               const SizedBox(width: 20), // Espaciado entre elementos
               // Botón para seleccionar CSV
               ElevatedButton(
-                onPressed: _pickFilecsv,
-                child: const Text("Seleccionar archivo CSV"),
+                onPressed: _pickFileJson,
+                child: const Text("Seleccionar archivo JSON"),
               ),
               const SizedBox(width: 20),
               // Botón para seleccionar archivo general
