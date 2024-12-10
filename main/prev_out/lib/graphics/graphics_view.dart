@@ -1,37 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart'; // Importar el paquete necesario
+import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'dart:convert';
-
+import 'package:fl_chart/fl_chart.dart';
 import 'package:prev_out/appbar.dart';
 
-class GraphicsApp extends StatelessWidget {
+
+class GraphicsApp extends StatefulWidget {
   const GraphicsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CombinedWidget(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  State<GraphicsApp> createState() => _GraphicsAppState();
 }
 
-class CombinedWidget extends StatefulWidget {
-  const CombinedWidget({super.key});
+class _GraphicsAppState extends State<GraphicsApp> {
+  List<dynamic>? jsonData;
 
-  @override
-  State<CombinedWidget> createState() => _CombinedWidgetState();
-}
-
-class _CombinedWidgetState extends State<CombinedWidget> {
-  List<dynamic>? jsonData; // Variable para almacenar datos del archivo JSON
-
-  // Función para seleccionar y leer el archivo JSON
   Future<void> _pickFileJson() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['json'], // Aceptar solo archivos JSON
+      allowedExtensions: ['json'],
     );
 
     if (result != null) {
@@ -42,160 +30,209 @@ class _CombinedWidgetState extends State<CombinedWidget> {
     }
   }
 
-  // Función para leer el archivo JSON
   Future<void> _readJsonFile(String filePath) async {
-    var file = File(filePath);
-
     try {
-      String jsonString = await file.readAsString();
+      String jsonString = await File(filePath).readAsString();
       setState(() {
-        jsonData = jsonDecode(jsonString); // Procesar el archivo JSON
+        jsonData = jsonDecode(jsonString)["Sheet1"];
       });
-      print("Archivo JSON cargado con éxito: $jsonData");
     } catch (e) {
       print("Error al leer el archivo JSON: $e");
     }
   }
 
+  double _toDouble(dynamic value) {
+    return value is int ? value.toDouble() : (value as double? ?? 0.0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Fondo
-      appBar: const CustomAppBar(), // Respetar la CustomAppBar
+      appBar: CustomAppBar(),
       body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: [
-          contenido(context),
-          // Botón para cargar archivo JSON
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _pickFileJson, // Asignar función al botón
-              child: const Text("Seleccionar archivo JSON"),
-            ),
+          ElevatedButton(
+            onPressed: _pickFileJson,
+            child: const Text("Seleccionar archivo JSON"),
           ),
           if (jsonData != null) ...[
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                "Datos del archivo JSON:",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            const SizedBox(height: 20),
+            SectionTitle("Porcentaje de estudiantes con problemas o padecimientos"),
+            PieChartWidget(
+              data: {
+                "Con problema (rojo)": jsonData!.where((e) => e["Problema o padecimiento"] == 1).length.toDouble(),
+                "Sin problema (verde)": jsonData!.where((e) => e["Problema o padecimiento"] == 0).length.toDouble(),
+              },
+              colors: [Colors.redAccent, Colors.greenAccent],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                jsonData.toString(),
-                style: const TextStyle(fontSize: 16),
-              ),
+            const SizedBox(height: 20),
+            SectionTitle("Distribución del ingreso mensual familiar"),
+            HistogramWidget(
+              data: jsonData!.map((e) => _toDouble(e["Ingresos mensuales familiares"])).toList(),
+              bins: 10,
+              barColor: Colors.purpleAccent,
             ),
-          ]
+            SectionTitle("Distribución de estudiantes que trabajan"),
+            PieChartWidget(
+              data: {
+                "Trabaja (azul)": jsonData!.where((e) => e["Trabaja"] == 1).length.toDouble(),
+                "No trabaja (naranja)": jsonData!.where((e) => e["Trabaja"] == 0).length.toDouble(),
+              },
+              colors: [Colors.blueAccent, Colors.orangeAccent],
+            ),
+            const SizedBox(height: 20),
+
+            const SizedBox(height: 20),
+            SectionTitle("Relación entre trayecto a la universidad y probabilidad baja (%)"),
+            ScatterPlotWidget(
+              data: jsonData!.map((e) => [_toDouble(e["Minutos de trayecto a la universidad"]), _toDouble(e["Probabilidad Baja (%)"])]).toList(),
+              pointColor: Colors.tealAccent,
+            ),
+            const SizedBox(height: 20),
+            SectionTitle("Distribución de la probabilidad baja (%)"),
+            HistogramWidget(
+              data: jsonData!.map((e) => _toDouble(e["Probabilidad Baja (%)"])).toList(),
+              bins: 100,
+              barColor: Colors.indigoAccent,
+            ),
+          ],
         ],
       ),
     );
   }
+}
 
-  Widget contenido(context) {
-    return Container(
-      child: Center(
-        child: Column(
-          children: <Widget>[
-            bar(),
-            lista(context),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget bar() {
-    return Container(
-      width: double.infinity,
-      height: 30,
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 135, 9, 9),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Text(
-        'Gráficas',
-        style: TextStyle(
-          color: Color.fromARGB(255, 255, 255, 255),
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
+// Componente reutilizable para títulos de sección
+class SectionTitle extends StatelessWidget {
+  final String title;
+  const SectionTitle(this.title, {Key? key}) : super(key: key);
 
-  Widget lista(BuildContext context) {
-    return Container(
-      child: Container(
-        width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(17.0),
-          child: Wrap(
-            spacing: 14,
-            runSpacing: 14,
-            children: const [
-              Graphics(titulo: "Gráfica de barra 1", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "Gráfica de barra 2", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "Gráfica de barra 3", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "Gráfica de barra 1", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "Gráfica de barra 2", fcolor: Color(0xffFFE5E5)),
-              Graphics(titulo: "Gráfica de barra 3", fcolor: Color(0xffFFE5E5)),
-            ],
-          ),
-        ),
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-class Graphics extends StatelessWidget {
-  final String titulo;
-  final Color fcolor;
+// Gráfica de pastel
+class PieChartWidget extends StatelessWidget {
+  final Map<String, double> data;
+  final List<Color> colors;
 
-  const Graphics({
-    Key? key,
-    required this.titulo,
-    required this.fcolor,
-  }) : super(key: key);
+  const PieChartWidget({required this.data, required this.colors, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final total = data.values.reduce((a, b) => a + b);
+    final sections = data.entries.map((entry) {
+      final percentage = (entry.value / total) * 100;
+      return PieChartSectionData(
+        value: entry.value,
+        title: '${entry.key}\n${percentage.toStringAsFixed(1)}%',
+        color: colors[data.keys.toList().indexOf(entry.key)],
+        radius: 80,
+        titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 0, 0, 0)),
+      );
+    }).toList();
+
+    return Column(
+      children: [
+        const Text(
+          "Distribución de Datos",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 300,
+          child: PieChart(PieChartData(sections: sections, centerSpaceRadius: 50)),
+        ),
+      ],
+    );
+  }
+}
+
+// Histograma
+class HistogramWidget extends StatelessWidget {
+  final List<double> data;
+  final int bins;
+  final Color barColor;
+
+  const HistogramWidget({required this.data, required this.bins, required this.barColor, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final min = data.reduce((a, b) => a < b ? a : b);
+    final max = data.reduce((a, b) => a > b ? a : b);
+    final binWidth = (max - min) / bins;
+
+    final histogram = List.generate(bins, (i) {
+      final lower = min + i * binWidth;
+      final upper = lower + binWidth;
+      final count = data.where((value) => value >= lower && value < upper).length;
+      return count.toDouble();
+    });
+
+    return SizedBox(
+      height: 300,
+      child: BarChart(BarChartData(
+        barGroups: histogram.asMap().entries.map((entry) {
+          return BarChartGroupData(
+            x: entry.key,
+            barRods: [BarChartRodData(toY: entry.value, color: barColor)],
+          );
+        }).toList(),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+          ),
+        ),
+        gridData: FlGridData(show: true),
+      )),
+    );
+  }
+}
+
+// Gráfica de dispersión
+class ScatterPlotWidget extends StatelessWidget {
+  final List<List<double>> data;
+  final Color pointColor;
+
+  const ScatterPlotWidget({required this.data, required this.pointColor, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 365,
-      height: 200,
-      child: Container(
-        decoration: BoxDecoration(
-          color: fcolor,
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 3,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+      height: 300,
+      child: ScatterChart(
+        ScatterChartData(
+          scatterSpots: data.map((point) {
+            return ScatterSpot(
+              point[0], // Coordenada X
+              point[1], // Coordenada Y
+            );
+          }).toList(),
+          gridData: FlGridData(show: true),
+          borderData: FlBorderData(show: true),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                titulo,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+          ),
+          scatterTouchData: ScatterTouchData(
+            touchTooltipData: ScatterTouchTooltipData( // Color del tooltip
+            ),
           ),
         ),
       ),
@@ -203,6 +240,60 @@ class Graphics extends StatelessWidget {
   }
 }
 
+class GroupedBarChartWidget extends StatelessWidget {
+  final Map<String, List<double>> data;
+  final List<Color> barColors;
 
+  const GroupedBarChartWidget({
+    Key? key,
+    required this.data,
+    required this.barColors,
+  }) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    final categories = data.keys.toList();
+    final maxGroupSize = data.values.map((list) => list.length).reduce((a, b) => a > b ? a : b);
+
+    return AspectRatio(
+      aspectRatio: 1.5,
+      child: BarChart(
+        BarChartData(
+          barGroups: List.generate(
+            maxGroupSize,
+            (index) => BarChartGroupData(
+              x: index,
+              barRods: List.generate(
+                categories.length,
+                (categoryIndex) => BarChartRodData(
+                  toY: index < data[categories[categoryIndex]]!.length
+                      ? data[categories[categoryIndex]]![index]
+                      : 0,
+                  color: barColors[categoryIndex],
+                  width: 10,
+                ),
+              ),
+            ),
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, _) {
+                  if (value.toInt() >= 0 && value.toInt() < categories.length) {
+                    return Text(categories[value.toInt()]);
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
