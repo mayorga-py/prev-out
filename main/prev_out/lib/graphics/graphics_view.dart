@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:prev_out/appbar.dart';
 
-
 class GraphicsApp extends StatefulWidget {
   const GraphicsApp({super.key});
 
@@ -14,35 +13,48 @@ class GraphicsApp extends StatefulWidget {
 }
 
 class _GraphicsAppState extends State<GraphicsApp> {
-  List<dynamic>? jsonData;
+  List<Map<String, dynamic>>? jsonData;
 
+  // Método para seleccionar el archivo JSON
   Future<void> _pickFileJson() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
-
+    // Abrir el selector de archivos
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['json']);
+    
+    // Verificar si se seleccionó un archivo
     if (result != null) {
-      var filePath = result.files.single.path;
+      final filePath = result.files.single.path;
       if (filePath != null) {
-        await _readJsonFile(filePath);
+        // Llamar a _readJsonFile para leer y procesar el archivo JSON
+        _readJsonFile(filePath);
       }
+    } else {
+      // Manejar el caso en que no se seleccionó ningún archivo
+      print("No se seleccionó ningún archivo");
     }
   }
 
+  // Método para leer el archivo JSON
   Future<void> _readJsonFile(String filePath) async {
     try {
-      String jsonString = await File(filePath).readAsString();
+      final file = File(filePath);
+      final lines = await file.readAsLines(); // Leer el archivo línea por línea
+
+      List<Map<String, dynamic>> parsedData = [];
+
+      // Iterar por cada línea y decodificarla
+      for (var line in lines) {
+        if (line.isNotEmpty) {
+          final Map<String, dynamic> jsonMap = jsonDecode(line); // Decodificar cada línea como un objeto JSON
+          parsedData.add(jsonMap);
+        }
+      }
+
       setState(() {
-        jsonData = jsonDecode(jsonString)["Sheet1"];
+        jsonData = parsedData;
       });
     } catch (e) {
       print("Error al leer el archivo JSON: $e");
     }
-  }
-
-  double _toDouble(dynamic value) {
-    return value is int ? value.toDouble() : (value as double? ?? 0.0);
   }
 
   @override
@@ -53,7 +65,10 @@ class _GraphicsAppState extends State<GraphicsApp> {
         padding: const EdgeInsets.all(16.0),
         children: [
           ElevatedButton(
-            onPressed: _pickFileJson,
+            onPressed: () {
+              // Llamar al método para seleccionar archivo JSON
+              _pickFileJson();
+            },
             child: const Text("Seleccionar archivo JSON"),
           ),
           if (jsonData != null) ...[
@@ -82,8 +97,6 @@ class _GraphicsAppState extends State<GraphicsApp> {
               colors: [Colors.blueAccent, Colors.orangeAccent],
             ),
             const SizedBox(height: 20),
-
-            const SizedBox(height: 20),
             SectionTitle("Relación entre trayecto a la universidad y probabilidad baja (%)"),
             ScatterPlotWidget(
               data: jsonData!.map((e) => [_toDouble(e["Minutos de trayecto a la universidad"]), _toDouble(e["Probabilidad Baja (%)"])]).toList(),
@@ -101,7 +114,13 @@ class _GraphicsAppState extends State<GraphicsApp> {
       ),
     );
   }
+
+  double _toDouble(dynamic value) {
+    return value is int ? value.toDouble() : (value as double? ?? 0.0);
+  }
 }
+// Resto de las clases auxiliares se mantiene sin cambios.
+
 
 
 // Componente reutilizable para títulos de sección
@@ -180,26 +199,48 @@ class HistogramWidget extends StatelessWidget {
 
     return SizedBox(
       height: 300,
-      child: BarChart(BarChartData(
-        barGroups: histogram.asMap().entries.map((entry) {
-          return BarChartGroupData(
-            x: entry.key,
-            barRods: [BarChartRodData(toY: entry.value, color: barColor)],
-          );
-        }).toList(),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true),
+      child: BarChart(
+        BarChartData(
+          barGroups: histogram.asMap().entries.map((entry) {
+            return BarChartGroupData(
+              x: entry.key,
+              barRods: [BarChartRodData(toY: entry.value, color: barColor)],
+            );
+          }).toList(),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, _) => Text(
+                  '${value.toInt()}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, _) {
+                  final binStart = (min + value.toInt() * binWidth).toStringAsFixed(0);
+                  final binEnd = (min + (value.toInt() + 1) * binWidth).toStringAsFixed(0);
+                  return Text(
+                    '\$${binStart}K-\n\$${binEnd}K',
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
           ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 40),
-          ),
+          gridData: FlGridData(show: true),
+          borderData: FlBorderData(show: true),
         ),
-        gridData: FlGridData(show: true),
-      )),
+      ),
     );
   }
 }
+
 
 // Gráfica de dispersión
 class ScatterPlotWidget extends StatelessWidget {
@@ -215,23 +256,30 @@ class ScatterPlotWidget extends StatelessWidget {
       child: ScatterChart(
         ScatterChartData(
           scatterSpots: data.map((point) {
-            return ScatterSpot(
-              point[0], // Coordenada X
-              point[1], // Coordenada Y
-            );
+            return ScatterSpot(point[0], point[1]);
           }).toList(),
           gridData: FlGridData(show: true),
           borderData: FlBorderData(show: true),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, _) => Text(
+                  '${value.toInt()}%',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
             ),
             bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-          ),
-          scatterTouchData: ScatterTouchData(
-            touchTooltipData: ScatterTouchTooltipData( // Color del tooltip
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, _) => Text(
+                  '${value.toInt()} min',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
             ),
           ),
         ),
@@ -239,6 +287,7 @@ class ScatterPlotWidget extends StatelessWidget {
     );
   }
 }
+
 
 class GroupedBarChartWidget extends StatelessWidget {
   final Map<String, List<double>> data;
@@ -296,4 +345,3 @@ class GroupedBarChartWidget extends StatelessWidget {
     );
   }
 }
-

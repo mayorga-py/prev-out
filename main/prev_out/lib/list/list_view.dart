@@ -80,7 +80,7 @@ class _ListApp extends State<ListApp> {
 
   Future<void> _uploadAndPredict(String filePath) async {
     var uri =
-        Uri.parse('http://192.168.0.16:5001/predict'); // Cambia a la URL de tu API
+        Uri.parse('http://127.0.0.1:5001/predict'); // Cambia a la URL de tu API
     var request = http.MultipartRequest('POST', uri);
 
     request.files.add(
@@ -118,6 +118,7 @@ class _ListApp extends State<ListApp> {
 
 
 
+
  // Función para seleccionar y leer el archivo JSON
   Future<void> _pickFileJson() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -132,48 +133,55 @@ class _ListApp extends State<ListApp> {
   }
 
 
-//Función para leer JSON
+//Función para leer JSON Lines
 Future<void> _readJsonFile(String filePath) async {
   var file = File(filePath);
 
   try {
-    String jsonString = await file.readAsString();
-    var jsonData = jsonDecode(jsonString);
-    var sheetData = jsonData['Sheet1']; // Aseguramos acceder a la clave correcta.
+    // Leer todas las líneas del archivo
+    List<String> lines = await file.readAsLines();
 
     // Mapeo de los códigos de "PROGRAMA EDUCATIVO" a los nombres de carrera
     final Map<int, String> carreraMap = {
       0: 'Administración',
       1: 'Automotriz',
-      2: 'Manufactura',
-      3: 'Mecatrónica',
-      4: 'Negocios',
-      5: 'Redes y Telecomunicaciones',
-      6: 'Sistemas',
-      7: 'Otro',
+      2: 'Datos',
+      3: 'Manufactura',
+      4: 'Mecatrónica',
+      5: 'Negocios',
+      6: 'Redes y Telecomunicaciones',
+      7: 'Sistemas ',
     };
 
     List<Map<String, dynamic>> extractedData = [];
-    for (var item in sheetData) {
-      // Obtener matrícula
-      var matricula = item['Matricula'] ?? 'Sin matrícula';
 
-      // Obtener carrera
-      var carreraNumero = item['PROGRAMA EDUCATIVO'];
-      String carreraNombre = 'Carrera desconocida';
-      if (carreraNumero is int) {
-        carreraNombre = carreraMap[carreraNumero] ?? 'Carrera desconocida';
+    for (var line in lines) {
+      try {
+        // Decodificar cada línea como JSON
+        var item = jsonDecode(line);
+
+        // Obtener matrícula
+        var matricula = item['Matricula'] ?? 'Sin matrícula';
+
+        // Obtener carrera
+        var carreraNumero = item['PROGRAMA EDUCATIVO'];
+        String carreraNombre = 'Carrera desconocida';
+        if (carreraNumero is int) {
+          carreraNombre = carreraMap[carreraNumero] ?? 'Carrera desconocida';
+        }
+
+        // Obtener porcentaje
+        var porcentaje = item['Probabilidad Baja (%)']?.toString() ?? '0.0';
+
+        // Agregar datos procesados
+        extractedData.add({
+          'matricula': matricula.toString(),
+          'carrera': carreraNombre,
+          'porcentaje': porcentaje,
+        });
+      } catch (e) {
+        print("Error al procesar la línea: $e");
       }
-
-      // Obtener porcentaje
-      var porcentaje = item['Probabilidad Baja (%)']?.toString() ?? '0.0';
-
-      // Agregar datos procesados
-      extractedData.add({
-        'matricula': matricula.toString(),
-        'carrera': carreraNombre,
-        'porcentaje': porcentaje,
-      });
     }
 
     setState(() {
@@ -184,6 +192,7 @@ Future<void> _readJsonFile(String filePath) async {
     print("Error al leer el archivo JSON: $e");
   }
 }
+
 
 
 void _searchMatricula() {
